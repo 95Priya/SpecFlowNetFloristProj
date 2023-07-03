@@ -9,13 +9,15 @@ using AventStack.ExtentReports;
 using SpecFlowNetFloristProj.Utils;
 using AutoItX3Lib;
 using System.Collections.ObjectModel;
-
+using WebDriverManager;
+using WebDriverManager.DriverConfigs.Impl;
+using Microsoft.Extensions.Options;
 
 namespace SpecFlowNetFloristProj
 {
     public class WizardDummy : SeleniumUtility
     {
-        
+
 
         private ExtentReports extent;
         ExtentTest test = null;
@@ -25,6 +27,9 @@ namespace SpecFlowNetFloristProj
         [SetUp]
         public void Setup()
         {
+          
+            SeleniumUtility utility = new SeleniumUtility();
+            driver = utility.SetUp("Chrome", "https://stage2.netflorist.co.za/");
             extent = ExtentManager.GetExtent();
         }
 
@@ -42,18 +47,7 @@ namespace SpecFlowNetFloristProj
             try
             {
                 test = extent.CreateTest("GWizard").Info("Test Started");
-                ChromeOptions options = new ChromeOptions();
-                options.AddArgument("no-sandbox");
-                ChromeDriverService driverService = ChromeDriverService.CreateDefaultService();
-                driverService.HideCommandPromptWindow = true;
-                driver = new ChromeDriver(driverService, options, TimeSpan.FromMinutes(3));
-
-                driver.Manage().Window.Maximize();
-                driver.Navigate().GoToUrl("https://stage2.netflorist.co.za/");
-                //driver.Navigate().GoToUrl("https://www.netflorist.co.za/");
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
-
-
                 GiftWizardHomePage ghomePage = new GiftWizardHomePage(driver);
 
                 //Occassion
@@ -70,7 +64,7 @@ namespace SpecFlowNetFloristProj
                     ghomePage.SelectSuburbById(id);
                     Thread.Sleep(1000);
 
-                    ghomePage.SelectDate(new DateTime(2023, 6, 30));
+                    ghomePage.SelectDate(new DateTime(2023, 7, 3));
 
                     ghomePage.FindItNow();
 
@@ -179,7 +173,7 @@ namespace SpecFlowNetFloristProj
                         //select date 
 
 
-                        ghomePage.SelectDateFromCalendar("30");
+                        ghomePage.SelectDateFromCalendar("3");
                         ghomePage.NextDeliveryType();
 
                         driver.Navigate().Back();
@@ -422,7 +416,6 @@ namespace SpecFlowNetFloristProj
                 PreviewAndConfirm();
             }
         }
-
 
         public void PersonalizedOnlyImageProduct()
         {

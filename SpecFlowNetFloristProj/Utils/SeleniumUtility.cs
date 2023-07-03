@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebDriverManager.DriverConfigs.Impl;
+using WebDriverManager;
 
 namespace SpecFlowNetFloristProj.Utils
 {
@@ -21,25 +23,37 @@ namespace SpecFlowNetFloristProj.Utils
         public static Actions action = null;
         public WebDriverWait wait = null;
 
-        public IWebDriver SetUp(string browserName,string appUrl)
+        public IWebDriver SetUp(string browserName, string appUrl)
         {
-            if(browserName.Equals("Chrome"))
-            {
-                    IWebDriver driver = new ChromeDriver();
-            }
-            else if(browserName.Equals("firefox"))
-            {
-                IWebDriver driver = new FirefoxDriver();
+            IWebDriver driver;
 
+            if (browserName.Equals("Chrome"))
+            {
+                new DriverManager().SetUpDriver(new ChromeConfig());
+                ChromeOptions options = new ChromeOptions();
+                options.AddArgument("no-sandbox");
+                ChromeDriverService driverService = ChromeDriverService.CreateDefaultService();
+                driverService.HideCommandPromptWindow = true;
+                driver = new ChromeDriver(driverService, options, TimeSpan.FromMinutes(3));
             }
+            else if (browserName.Equals("Firefox"))
+            {
+                new DriverManager().SetUpDriver(new FirefoxConfig());
+                driver = new FirefoxDriver();
+            }
+            else
+            {
+                throw new ArgumentException("Unsupported browser name");
+            }
+
             driver.Manage().Window.Maximize();
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
             driver.Navigate().GoToUrl(appUrl);
-           
-            return driver;
 
+            return driver;
         }
+
 
         public void performClick(IWebElement element)
         {

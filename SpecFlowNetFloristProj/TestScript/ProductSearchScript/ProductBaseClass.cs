@@ -1,10 +1,13 @@
-﻿using OpenQA.Selenium;
+﻿using NUnit.Framework;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using SpecFlowNetFloristProj.Pages;
 using SpecFlowNetFloristProj.Utils;
 using System.Configuration;
+using WebDriverManager.DriverConfigs.Impl;
+using WebDriverManager;
 
 namespace SpecFlowNetFloristProj
 {
@@ -19,19 +22,10 @@ namespace SpecFlowNetFloristProj
 
         public void ExecuteScriptForAddress(string productCode, string address, string addressType)
         {
-
-
             try
             {
-                ChromeOptions options = new ChromeOptions();
-                options.AddArgument("no-sandbox");
-                ChromeDriverService driverService = ChromeDriverService.CreateDefaultService();
-                driverService.HideCommandPromptWindow = true;
-                driver = new ChromeDriver(driverService, options, TimeSpan.FromMinutes(1));
-
-                driver.Manage().Window.Maximize();
-               driver.Navigate().GoToUrl("https://stage2.netflorist.co.za/");            
-                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
+                SeleniumUtility utility = new SeleniumUtility();
+                driver = utility.SetUp("Chrome", "https://stage2.netflorist.co.za/");
 
                 searchflower = new SearchHomePage(driver);
                 giftwizard = new GiftWizardHomePage(driver);    

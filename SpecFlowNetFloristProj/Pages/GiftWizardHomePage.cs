@@ -26,10 +26,13 @@ namespace SpecFlowNetFloristProj.Pages
         {
             Occasion.Click();
             List<IWebElement> OccasionList = driver.FindElements(By.XPath("//div[@class='occasionList']/div")).ToList();
+            int OccassionListCount = OccasionList.Count;
+          
+        
             foreach (IWebElement occasions in OccasionList)
             {
                 Console.WriteLine(occasions.Text);
-
+                   
             }
             OccasionList[1].Click();
         }
@@ -74,8 +77,15 @@ namespace SpecFlowNetFloristProj.Pages
         {
             DateField.Click();
         }
+
+
         public void SelectDate(DateTime date)
         {
+            //var newDate = DateTime.Today.AddDays(3);
+
+            //var startDate = (string)null;
+            //startDate = newDate.ToString("MM/dd/yyyy");
+
             // Click on the date field to open the datepicker
             IWebElement dateField = driver.FindElement(By.Id("txtSelectDate"));
             dateField.Click();
