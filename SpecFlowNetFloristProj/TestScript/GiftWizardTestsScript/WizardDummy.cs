@@ -9,6 +9,9 @@ using AventStack.ExtentReports;
 using SpecFlowNetFloristProj.Utils;
 using AutoItX3Lib;
 using System.Collections.ObjectModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using WebDriverManager;
 using WebDriverManager.DriverConfigs.Impl;
 using Microsoft.Extensions.Options;
@@ -17,20 +20,17 @@ namespace SpecFlowNetFloristProj
 {
     public class WizardDummy : SeleniumUtility
     {
-
-
+        IWebDriver driver;
         private ExtentReports extent;
         ExtentTest test = null;
-        IWebDriver driver;
         GiftWizardHomePage ghomePage;
 
         [SetUp]
         public void Setup()
         {
-          
-            SeleniumUtility utility = new SeleniumUtility();
-            driver = utility.SetUp("Chrome", "https://stage2.netflorist.co.za/");
+
             extent = ExtentManager.GetExtent();
+
         }
 
         [TearDown]
@@ -46,8 +46,20 @@ namespace SpecFlowNetFloristProj
         {
             try
             {
+
                 test = extent.CreateTest("GWizard").Info("Test Started");
-                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
+                ChromeOptions options = new ChromeOptions();
+                options.AddArgument("no-sandbox");
+                ChromeDriverService driverService = ChromeDriverService.CreateDefaultService();
+                driverService.HideCommandPromptWindow = true;
+                driver = new ChromeDriver(driverService, options, TimeSpan.FromMinutes(3));
+
+                driver.Manage().Window.Maximize();
+                driver.Navigate().GoToUrl("https://stage2.netflorist.co.za/");
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(60);
+
+
+
                 GiftWizardHomePage ghomePage = new GiftWizardHomePage(driver);
 
                 //Occassion
@@ -56,7 +68,7 @@ namespace SpecFlowNetFloristProj
                 //                                      "27924","30912","28941","27924","31281","31103","30721","30568",
                 //                                      "29982","33423","29534","37826","68127","28536","30200","65182","31507","26917","33732","31448" };
 
-                List<string> ids = new List<string>() { "28982" };
+                List<string> ids = new List<string>() { "28704" };
                 foreach (string id in ids)
                 {
 
@@ -64,7 +76,7 @@ namespace SpecFlowNetFloristProj
                     ghomePage.SelectSuburbById(id);
                     Thread.Sleep(1000);
 
-                    ghomePage.SelectDate(new DateTime(2023, 7, 3));
+                    ghomePage.SelectDate(new DateTime(2023, 7, 7));
 
                     ghomePage.FindItNow();
 
@@ -82,20 +94,27 @@ namespace SpecFlowNetFloristProj
 
                         for (int i = 0; i < Productlist.Count; i++)
                         {
-                            IWebElement product = Productlist[i];
-
-                            //Out of stock(sold out)
-                            IWebElement deliveryElement = product.FindElement(By.ClassName("NextDeliveryPhrase"));
-                            string deliveryStatus = deliveryElement.Text;
-
-                            IWebElement nameOfProduct = driver.FindElement(By.XPath(".//a[2]"));
-
-                            if (deliveryStatus.Equals("Out of stock"))
+                            IWebElement product = Productlist[39];
+                            try
                             {
-                                Console.WriteLine("Product is out of stock " + nameOfProduct.Text + deliveryStatus);
-                                test.Log(Status.Info, "Product is out of stock " + nameOfProduct.Text + deliveryStatus);
-                                continue;
+                                //Out of stock(sold out)
+                                IWebElement deliveryElement = product.FindElement(By.XPath("//div[@class='NextDeliveryPhrase']"));
+                                string deliveryStatus = deliveryElement.Text;
 
+
+                                IWebElement nameOfProduct = driver.FindElement(By.XPath(".//a[2]"));
+
+                                if (deliveryStatus.Equals("Out of stock"))
+                                {
+                                    Console.WriteLine("Product is out of stock " + nameOfProduct.Text + deliveryStatus);
+                                    test.Log(Status.Info, "Product is out of stock " + nameOfProduct.Text + deliveryStatus);
+                                    continue;
+
+                                }
+                            }
+                            catch (StaleElementReferenceException)
+                            {
+                                //
                             }
                             product.Click();
 
@@ -155,39 +174,30 @@ namespace SpecFlowNetFloristProj
                                     string prodLocationText = ProductLocation.Text;
                                     UnavailablePopUp.FindElement(By.XPath("//*[@id='closeDeliverypop']")).Click();
                                     Thread.Sleep(1500);
+
                                     Console.WriteLine("Product is Unavailable: " + prodLocationText);
                                 }
                             }
                             catch (NoSuchElementException)
                             {
-                                // Popup did not appear, continue with the rest of the code
+                                Console.WriteLine("Popup did not appear");
                             }
+                            ghomePage.SelectDateFromCalendar("7"); //provide date 
+                            ghomePage.NextDeliveryType();
 
-
-                            // Rest of your code
                             driver.Navigate().Back();
                             Thread.Sleep(1000);
                             Productlist = driver.FindElements(By.XPath("//div[@class ='ProductBox']")).ToList();
-                            continue;
                         }
-                        //select date 
 
-
-                        ghomePage.SelectDateFromCalendar("3");
-                        ghomePage.NextDeliveryType();
-
-                        driver.Navigate().Back();
-                        Thread.Sleep(1000);
-                        Productlist = driver.FindElements(By.XPath("//div[@class ='ProductBox']")).ToList();
+                        if (currentPage < totalPages)
+                        {
+                            GoToNextPage();
+                            currentPage++;
+                        }
                     }
 
-                    if (currentPage < totalPages)
-                    {
-                        GoToNextPage();
-                        currentPage++;
-                    }
                 }
-
             }
 
             catch (Exception)
@@ -196,8 +206,6 @@ namespace SpecFlowNetFloristProj
                 SeleniumUtility.TakeScreenshot(driver, screenshotPath);
                 test.Log(Status.Fail, "Test Failed",
                     MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotPath).Build());
-
-
                 test.Log(Status.Fail);
 
                 throw;
@@ -271,7 +279,6 @@ namespace SpecFlowNetFloristProj
                 Thread.Sleep(1000);
                 buttonPreview.SendKeys(Keys.Escape);
                 Console.WriteLine("Click");
-
             }
 
             IWebElement confirm = driver.FindElement(By.Id("chkNFPersonalisedTermsAndCond"));
@@ -281,10 +288,10 @@ namespace SpecFlowNetFloristProj
 
         public void PersonalizedTextProduct()
         {
-            //   WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
             IWebElement personalizedButton = null;
 
-            personalizedButton = driver.FindElement(By.XPath("//*[@id='ctl00_MainContent_pnlPUAttributes']/div[1]"));
+            personalizedButton = driver.FindElement(By.XPath("//*[contains(text(), 'Personalise this item')]"));
 
             wait.Until(ExpectedConditions.ElementToBeClickable(personalizedButton));
 
@@ -341,11 +348,12 @@ namespace SpecFlowNetFloristProj
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
             IWebElement personalizedButton = null;
 
-            personalizedButton = driver.FindElement(By.XPath("//*[@id='ctl00_MainContent_pnlPUAttributes']/div[1]"));
+            personalizedButton = driver.FindElement(By.XPath("//*[contains(text(), 'Personalise this item')]"));
 
             wait.Until(ExpectedConditions.ElementToBeClickable(personalizedButton));
 
             string personalizedButtonText = personalizedButton.Text.Trim();
+
 
             if (personalizedButton.Enabled)
             {
@@ -371,6 +379,10 @@ namespace SpecFlowNetFloristProj
                     UploadImage[i].Click();
 
                     wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("UploadImage"))).Click();
+
+                    // IWebElement fileInput = driver.FindElement(By.XPath("//input[@type='file']"));
+
+                    Thread.Sleep(1000);
 
                     AutoItX3 autoIt = new AutoItX3();
                     autoIt.WinWait("Open", "", 10);

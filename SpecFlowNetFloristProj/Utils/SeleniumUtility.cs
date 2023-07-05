@@ -47,8 +47,8 @@ namespace SpecFlowNetFloristProj.Utils
             }
 
             driver.Manage().Window.Maximize();
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+            //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
+            //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
             driver.Navigate().GoToUrl(appUrl);
 
             return driver;

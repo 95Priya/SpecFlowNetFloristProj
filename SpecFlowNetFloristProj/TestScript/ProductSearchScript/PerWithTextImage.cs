@@ -6,11 +6,7 @@ using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using SpecFlowNetFloristProj.Pages;
 using SpecFlowNetFloristProj.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace SpecFlowNetFloristProj.ProductSearchScript
 {
@@ -100,7 +96,7 @@ namespace SpecFlowNetFloristProj.ProductSearchScript
                     textField.SendKeys("Test");
                     Thread.Sleep(1000);
                 }
-                string imagePath = @"C:\Users\Priyanka Shirsath\Pictures\Screenshots\sample.png";
+                string imagePath = @"C:\Users\Priyanka Shirsath\Pictures\Screenshots\sample2.png";
 
                 List<IWebElement> UploadImage = driver.FindElements(By.XPath("//a[@title='Upload']")).ToList();
 
@@ -126,6 +122,7 @@ namespace SpecFlowNetFloristProj.ProductSearchScript
                             previewImage.Click();
                             uploadButton.Click();
                         }
+
                         catch (NoSuchElementException)
                         {
                             Console.WriteLine("Upload elements not found");
@@ -220,7 +217,7 @@ namespace SpecFlowNetFloristProj.ProductSearchScript
                         {
                             Console.WriteLine("Popup did not appear");
                         }
-                        giftwizard.SelectDateFromCalendar("24"); //provide date 
+                        giftwizard.SelectDateFromCalendar("7"); //provide date 
                         giftwizard.NextDeliveryType();
                         LoginPage.AddToFinalBasket();
                         Thread.Sleep(1000);
@@ -234,7 +231,7 @@ namespace SpecFlowNetFloristProj.ProductSearchScript
             }
             catch (Exception)
             {
-                string screenshotFilePath = @"D:\Csharp\SpecFlowNetFloristProj\SpecFlowNetFloristProj\Screenshots\screenshot3.png";
+                string screenshotFilePath = @"D:\AutoTesting\SpecFlowNetFloristProj\SpecFlowNetFloristProj\Screenshots\screenshot.png";
                 TakeScreenshot(driver, screenshotFilePath);
                 Console.WriteLine("Screenshot captured: " + screenshotFilePath);
                 //Console.WriteLine("Exception occurred: " + ex.Message);
@@ -242,7 +239,7 @@ namespace SpecFlowNetFloristProj.ProductSearchScript
             }
             finally
             {
-                 driver.Quit();
+               //  driver.Quit();
 
             }
 

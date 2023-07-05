@@ -81,10 +81,7 @@ namespace SpecFlowNetFloristProj.Pages
 
         public void SelectDate(DateTime date)
         {
-            //var newDate = DateTime.Today.AddDays(3);
-
-            //var startDate = (string)null;
-            //startDate = newDate.ToString("MM/dd/yyyy");
+          
 
             // Click on the date field to open the datepicker
             IWebElement dateField = driver.FindElement(By.Id("txtSelectDate"));
@@ -270,8 +267,10 @@ namespace SpecFlowNetFloristProj.Pages
             }
             catch (StaleElementReferenceException)
             {
-                IWebElement dateElement = driver.FindElement(By.XPath(dateXPath));
-                dateElement.Click();
+                
+                    IWebElement dateElement = driver.FindElement(By.XPath(dateXPath));
+                    dateElement.Click();
+                
             }
         }
     }
